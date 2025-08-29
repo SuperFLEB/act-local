@@ -1,0 +1,62 @@
+.infoPane {
+	width: 240px;
+	flex-shrink: 0;
+	height: 100vh;
+	padding: 2em;
+	background-image: radial-gradient(ellipse 240px 320px at 240px 320px, transparent 0%, transparent 240px, #0af 340px);
+	background-size: 100% 320px;
+	background-repeat: no-repeat;
+
+	* {
+		box-sizing: border-box;
+	}
+
+	.portMenu {
+		display: flex;
+		flex-direction: row;
+	}
+
+	.services.waiting {
+		opacity: 50%;
+	}
+
+	.services, .service {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.services {
+		display: flex;
+		flex-wrap: wrap;
+		align-content: flex-start;
+		align-items: start;
+		font-family: Arial Narrow, Arial, Helvetica, sans-serif;
+	}
+
+	h2 {
+		position: relative;
+		padding-top: 1em;
+		margin-top: 1em;
+	}
+
+	h2:first-child {
+		margin-top: 0;
+	}
+
+	h2:before {
+		content: " ";
+		position: absolute;
+		top: 0;
+		left: -2em;
+		right: 0;
+		border-top: 3px solid #0af;
+		box-shadow: -2em 3px 0 #f50;
+	}
+
+	.infoServiceIcon {
+		width: 100%;
+		aspect-ratio: 1 / 1;
+		filter: drop-shadow(-5px 5px 5px rgba(0, 0, 0, .3));
+	}
+}

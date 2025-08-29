@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32" height="32" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+	<path id="api" d="M29.5 23.5 h-23 l -4 -14 h16 l 3 11 h-14" stroke="#000" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
+		  stroke-dasharray="0 3" stroke-dashoffset="1" />
+</svg>
