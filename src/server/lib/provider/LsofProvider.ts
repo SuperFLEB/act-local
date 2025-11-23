@@ -4,44 +4,87 @@ import {execFile} from "node:child_process";
 import {promisify} from "node:util";
 import {platform} from "node:os";
 import getDestinationIp from "@/server/lib/provider/util/getDestinationIp.ts";
-import idPort from "@/server/lib/provider/util/idPort.ts";
 
 const pExecFile = promisify(execFile);
 
-function parsePortEntries(lines: string[]): Port {
-	const prefixes: Record<string, keyof Port> = {
-		p: "pid",
-		P: "transportProtocol",
-		c: "command",
-		t: "ipVersion",
-		'TST=': "state"
-	} as const;
+function parseLsof(lsofOutput: string, assumeProtocol: 'TCP' | 'UDP' = 'TCP'): Port[] {
+	const lines = lsofOutput.split("\n").filter(line => line.trim().length > 0);
+	type Fd = {
+		id: string;
+		transportProtocol?: string;
+		ipVersion?: 4 | 6;
+		state?: string;
+		ip?: string;
+		port?: number;
+		destIp?: string;
+	}
 
-	const port = lines.reduce((carry, current) => {
-		if (current[0] === "n") {
-			const ipMatch = current.slice(1).match(/(.+):(\d+)/);
-			const ip = ipMatch && ipMatch[1] !== "*" ? ipMatch[1] : null;
-			const portNumber = ipMatch ? parseInt(ipMatch[2]) : null;
-			if (!(ip && portNumber)) return carry;
-			return {...carry,
-				ip,
-				port: portNumber,
-				destIp: getDestinationIp(ip),
-			};
+	type Process = {
+		pid: number;
+		command?: string;
+		fd: Fd[];
+	}
+
+	const processes: Process[] = [];
+	let process: Process | null = null;
+	let fd: Fd | null = null;
+
+	for (const line of lines) {
+		if ("fc".includes(line[0]) && !process) {
+			throw new Error(`Unexpected process field "${line[0]}" encountered without an existing process in lsof output`);
 		}
 
-		if (current[0] === "t") {
-			if (!current.startsWith("tIPv")) return carry;
-			return {...carry, version: current[4] === "6" ? 6 : 4};
+		if ("ntTP".includes(line[0]) && !fd) {
+			throw new Error(`Unexpected file descriptor field "${line[0]}" encountered without an existing file descriptor in lsof output`);
 		}
 
-		if (current[0] in prefixes) return {...carry, [prefixes[current[0] as keyof typeof prefixes]]: current.slice(1) };
-		if (current === "TST=LISTEN") return {...carry, state: "LISTENING" };
-		if (current.slice(0, 3) in prefixes) return {...carry, [prefixes[current.slice(0, 3) as keyof typeof prefixes]]: current.slice(3) };
-		return carry;
-	}, {}) as Port;
-	port.id = idPort(port);
-	return port;
+		switch (line[0]) {
+			case "p":
+				if (process) processes.push(process);
+				process = {
+					pid: parseInt(line.slice(1)),
+					fd: [],
+				};
+				continue;
+			case "c":
+				process!.command = line.slice(1);
+				continue;
+			case "f":
+				if (fd) process!.fd.push(fd);
+				fd = {
+					id: line.slice(1),
+					transportProtocol: assumeProtocol,
+				};
+				continue;
+			case "P":
+				fd!.transportProtocol = line.slice(1);
+				continue;
+			case "t":
+				fd!.ipVersion = line[1] === "6" ? 6 : 4;
+				continue;
+			case "n":
+				fd!.destIp = getDestinationIp(line.slice(1));
+				fd!.ip = line.slice(1, line.indexOf(":"));
+				fd!.port = parseInt(line.slice(line.indexOf(":") + 1));
+		}
+
+		if (line[0] !== "T") continue;
+		const prefix = line.slice(0, 4);
+		switch (prefix) {
+			case "TST=":
+				fd!.state = line.slice(4);
+				continue;
+		}
+	}
+
+	// Flatten process list to a list of FDs/ports
+	return processes.flatMap(process => {
+		const {fd: fds, ...partialPort} = process;
+		return fds.map((fd) => ({
+			...partialPort as Port,
+			...fd
+		}));
+	}) as Port[];
 }
 
 export default class LsofProvider extends Provider {
@@ -53,16 +96,7 @@ export default class LsofProvider extends Provider {
 	}
 
 	async scan(): Promise<Port[]> {
-		const { stdout: lsofResult } = await pExecFile("lsof", ["-Pni", "tcp", "-sTCP:LISTEN", "-F", "cntT"]);
-		const results: string[][] = [];
-		let current: string[] = [];
-		for (const line of lsofResult.split("\n")) {
-			if (line[0] === "p") {
-				if (current.length) results.push(current);
-				current = [];
-			}
-			current.push(line);
-		}
-		return results.map(parsePortEntries);
+		const lsof = await pExecFile("lsof", ["-Pni", "tcp", "-sTCP:LISTEN", "-F", "cntT"]);
+		return parseLsof(lsof.stdout);
 	}
 }

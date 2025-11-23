@@ -13,9 +13,7 @@ export type ParsedResponse = BasicResponse & {
 function getDocument(response: BasicResponse): any {
 	switch (response.contentType) {
 		case "text/html":
-			const doc = new JSDOM(response.body).window.document;
-			console.log(doc);
-			return doc;
+			return new JSDOM(response.body).window.document;
 		case "application/json":
 			return JSON.parse(response.body);
 		default:
