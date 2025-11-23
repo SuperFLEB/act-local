@@ -58,7 +58,7 @@ export default class LsofProvider extends Provider {
 		let current: string[] = [];
 		for (const line of lsofResult.split("\n")) {
 			if (line[0] === "p") {
-				results.push(current);
+				if (current.length) results.push(current);
 				current = [];
 			}
 			current.push(line);
