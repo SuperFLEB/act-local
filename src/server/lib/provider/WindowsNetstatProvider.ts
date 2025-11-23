@@ -41,7 +41,7 @@ export default class WindowsNetstatProvider extends Provider {
 			.then(() => {
 				return true;
 			})
-			.catch((error) => {
+			.catch((_) => {
 				return false;
 			});
 	}
@@ -57,17 +57,15 @@ export default class WindowsNetstatProvider extends Provider {
 
 		const lines = (nsResultV4 + "\n" + nsResultV6).split("\n").filter(line => line.includes("LISTENING"));
 
-		const ports: Port[] = lines.map(line => {
+		return lines.map(line => {
 			const [_proto, local, _remote, state, pidString] = line.trim().split(/\s+/);
 			const splitPoint = local.lastIndexOf(":");
 			if (splitPoint === -1) return null;
 			const localIp = local.slice(0, splitPoint);
 			const localPort = Number(local.slice(splitPoint + 1));
 			const pid = Number(pidString);
-			const id = idPort({ pid, ip: localIp, port: localPort });
 
-			return {
-				id,
+			return idPort({
 				pid,
 				transportProtocol: "TCP",
 				ip: localIp,
@@ -76,8 +74,7 @@ export default class WindowsNetstatProvider extends Provider {
 				port: localPort,
 				state: state as PortState,
 				command: processes[pid] ?? null,
-			} as Port;
+			}) as Port;
 		}).filter(port => port !== null);
-		return ports;
 	}
 }
