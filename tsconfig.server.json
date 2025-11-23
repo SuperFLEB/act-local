@@ -3,7 +3,10 @@
 		"lib": [
 			"ESNext"
 		],
+		"esModuleInterop": true,
 		"target": "ESNext",
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
 		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
 		"typeRoots": [
 			"./src/typedefs"
@@ -16,6 +19,7 @@
 		"noUnusedParameters": false,
 
 		"allowImportingTsExtensions": true,
+		"noEmit": true,
 
 		"baseUrl": ".",
 		"paths": {
