@@ -100,7 +100,6 @@ export default class LsofProvider extends Provider {
 		// lsof -Pn -i tcp -a -i6 -i4 -sTCP:LISTEN -F cntT
 		const lsof = await pExecFile("lsof", ["-Pn", "-i", "tcp", "-a", "-i6", "-i4", "-sTCP:LISTEN", "-F", "cntT"]);
 		const parsed = parseLsof(lsof.stdout);
-		console.log(parsed);
 		return parsed;
 	}
 }
