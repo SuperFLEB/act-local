@@ -12,7 +12,7 @@ function parseLsof(lsofOutput: string, assumeProtocol: 'TCP' | 'UDP' = 'TCP'): P
 	type Fd = {
 		id: string;
 		transportProtocol?: string;
-		ipVersion?: 4 | 6;
+		ipVersion?: 4 | 6 | null;
 		state?: string;
 		ip?: string;
 		port?: number;
@@ -60,10 +60,10 @@ function parseLsof(lsofOutput: string, assumeProtocol: 'TCP' | 'UDP' = 'TCP'): P
 				fd!.transportProtocol = line.slice(1);
 				continue;
 			case "t":
-				fd!.ipVersion = line[1] === "6" ? 6 : 4;
+				const ipVersion = line.match(/^tIPv(\d)$/)?.[1];
+				fd!.ipVersion = ipVersion ? parseInt(ipVersion) as 4 | 6 : null;
 				continue;
 			case "n":
-				fd!.destIp = getDestinationIp(line.slice(1));
 				fd!.ip = line.slice(1, line.indexOf(":"));
 				fd!.port = parseInt(line.slice(line.indexOf(":") + 1));
 		}
@@ -82,7 +82,8 @@ function parseLsof(lsofOutput: string, assumeProtocol: 'TCP' | 'UDP' = 'TCP'): P
 		const {fd: fds, ...partialPort} = process;
 		return fds.map((fd) => ({
 			...partialPort as Port,
-			...fd
+			...fd,
+			destIp: getDestinationIp(fd.ip!, fd.ipVersion!),
 		}));
 	}) as Port[];
 }
@@ -96,7 +97,10 @@ export default class LsofProvider extends Provider {
 	}
 
 	async scan(): Promise<Port[]> {
-		const lsof = await pExecFile("lsof", ["-Pni", "tcp", "-sTCP:LISTEN", "-F", "cntT"]);
-		return parseLsof(lsof.stdout);
+		// lsof -Pn -i tcp -a -i6 -i4 -sTCP:LISTEN -F cntT
+		const lsof = await pExecFile("lsof", ["-Pn", "-i", "tcp", "-a", "-i6", "-i4", "-sTCP:LISTEN", "-F", "cntT"]);
+		const parsed = parseLsof(lsof.stdout);
+		console.log(parsed);
+		return parsed;
 	}
 }
