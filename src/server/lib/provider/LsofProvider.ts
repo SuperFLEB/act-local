@@ -53,10 +53,10 @@ export default class LsofProvider extends Provider {
 	}
 
 	async scan(): Promise<Port[]> {
-		const { stdout: lsofResult } = await pExecFile("lsof", ["-Pni", "tcp", "-sTCP:LISTEN", "-sTCP:ESTABLISHED", "-F", "cntT"]);
+		const { stdout: lsofResult } = await pExecFile("lsof", ["-Pni", "tcp", "-sTCP:LISTEN", "-F", "cntT"]);
 		const results: string[][] = [];
+		let current: string[] = [];
 		for (const line of lsofResult.split("\n")) {
-			let current: string[] = [];
 			if (line[0] === "p") {
 				results.push(current);
 				current = [];
