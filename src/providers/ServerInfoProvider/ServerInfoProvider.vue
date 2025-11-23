@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import {onMounted, provide, readonly, ref} from "vue";
+import {provide, readonly, ref} from "vue";
 import type {ServerInfo} from "@t/ServerInfo.ts";
 import k from "./keys.ts";
 
 const serverInfo = ref<ServerInfo | undefined>();
 
 if (!serverInfo.value) {
-	fetch("/serverinfo.json")
+	const url = process.env.NODE_ENV === "development" ? "http://localhost:8880" : window.location.origin;
+
+	fetch(url + "/serverinfo.json")
 		.then(r => r.json())
 		.then(info => {
 			serverInfo.value = info;

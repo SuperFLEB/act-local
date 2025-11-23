@@ -3,8 +3,8 @@ import wsServer from "./server/websocket-server.ts";
 
 const options = {
 	ports: {
-		http: Number(process.env.HTTP_PORT ?? process.env.DEFAULT_HTTP_PORT),
-		ws: Number(process.env.WS_PORT ?? process.env.DEFAULT_WS_PORT),
+		http: Number(process.env.HTTP_PORT ?? process.env.DEFAULT_HTTP_PORT ?? 8880),
+		ws: Number(process.env.WS_PORT ?? process.env.DEFAULT_WS_PORT ?? 8881),
 	}
 };
 

@@ -1,5 +1,4 @@
 import express from "express";
-import services from "./api/services";
 import {access, constants as fsConstants} from "node:fs";
 import type {ServerInfo} from "@t/ServerInfo.ts";
 
@@ -8,8 +7,8 @@ const APP_NAME = "Act Local";
 export default function serveHttp(port: number, options: ServerInfo) {
 	const app = express();
 
-	app.get("/services", services);
 	app.get("/serverinfo.json", (req, res) => {
+		res.setHeader("Access-Control-Allow-Origin", "*");
 		res.status(200).contentType("application/json").send(JSON.stringify(options));
 	});
 	app.get("/", (req, res) => {

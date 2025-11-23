@@ -6,6 +6,7 @@
 !.yarn/versions
 
 .idea
+.scratchpad
 
 node_modules
 dist

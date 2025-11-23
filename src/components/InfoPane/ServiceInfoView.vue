@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import ServiceIcon from "@/components/ServiceIcon.vue";
+import {serviceUrl} from "@/util/service.ts";
 import type {ServiceInfoPanelProps} from "@t/FrontendTypes.ts";
+import {computed} from "vue";
 
 const props = defineProps<ServiceInfoPanelProps>();
+const url = computed(() => serviceUrl(props.item))
 </script>
 
 <template>
@@ -17,12 +20,10 @@ const props = defineProps<ServiceInfoPanelProps>();
 			</tr>
 			<tr>
 				<th>URL</th>
-				<td><a :href="props.item.url">{{ props.item.url }}</a></td>
+				<td><a :href="url">{{ url }}</a></td>
 			</tr>
 			</tbody>
 		</table>
-
-<!--		<pre v-if="props.item.netstat">{{ props.item.netstat }}</pre>-->
 	</section>
 </template>
 
