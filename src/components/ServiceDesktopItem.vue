@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type {Service} from "@t/ServicesTypes.ts";
 import ServiceIcon from "@/components/ServiceIcon.vue";
-import {type CSSProperties, nextTick, onMounted, ref, useTemplateRef, watch} from "vue";
+import {type CSSProperties, nextTick, ref, useTemplateRef, watch} from "vue";
+import type {Service} from "@/types/Service";
 
 const props = defineProps<{ service: Service, focus: boolean }>();
 const emit = defineEmits<{
@@ -15,21 +15,21 @@ function activate(e: MouseEvent | KeyboardEvent) {
 }
 
 const titleStyle = ref<CSSProperties>({});
-const titleRef = useTemplateRef('title');
+const titleRef = useTemplateRef("title");
 function shrinkwrap() {
 	nextTick(() => {
 		const range = document.createRange();
 		range.selectNodeContents(titleRef.value!);
-		titleStyle.value.maxWidth = Math.max(0, ...Array.from(range.getClientRects()).map(r => r.width)) + 'px';
+		titleStyle.value.maxWidth = Math.max(0, ...Array.from(range.getClientRects()).map(r => r.width)) + "px";
 	});
 }
-watch(() => props.service.title, shrinkwrap, { immediate: true });
+watch(() => props.service.title, shrinkwrap, {immediate: true});
 </script>
 <template>
 	<div
 		:class="['item', {focus: props.focus}]"
 		tabindex="0"
-	 	@focusin="emit('focus', $event, props.service)"
+		@focusin="emit('focus', $event, props.service)"
 		@dblclick="activate"
 	>
 		<ServiceIcon class="icon" :service="props.service"/>

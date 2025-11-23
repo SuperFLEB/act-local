@@ -17,6 +17,7 @@ const defines = (definesObject) => Object.fromEntries(
 )
 
 const options = {
+	tsconfig: home("tsconfig.server.json"),
 	entryPoints,
 	bundle: true,
 	outfile: home("dist/server.js"),

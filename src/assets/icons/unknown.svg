@@ -44,4 +44,5 @@
 		<path class="qm" d="M100 147 h 0"/>
 		<rect x="0" y="0" width="140" height="140" rx="16" ry="16" transform="translate(00 100) rotate(-45)"/>
 	</g>
+	<g id="none"></g>
 </svg>

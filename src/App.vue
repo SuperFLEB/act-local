@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import PortMenu from "@/components/PortMenu.vue";
-import PortInfoProvider from "@/providers/PortInfoProvider/PortInfoProvider.vue";
+import PortInfoProvider from "@/providers/PortServicesProvider/PortServicesProvider.vue";
 import ServerInfoProvider from "@/providers/ServerInfoProvider/ServerInfoProvider.vue";
+import PortMenu from "@/components/PortMenu.vue";
 </script>
+
 
 <template>
 	<ServerInfoProvider>
-		<PortInfoProvider>
-			<PortMenu/>
+		<PortInfoProvider autoConnect>
+			<PortMenu />
 		</PortInfoProvider>
 	</ServerInfoProvider>
 </template>

@@ -1,4 +1,4 @@
-import type {Service} from "@t/ServicesTypes.ts";
+import type { Service } from "./Service.ts";
 
 export type ServiceInfoPanelProps = {
 	type: "Service";
