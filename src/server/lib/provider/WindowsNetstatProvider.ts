@@ -64,13 +64,14 @@ export default class WindowsNetstatProvider extends Provider {
 			const localIp = local.slice(0, splitPoint);
 			const localPort = Number(local.slice(splitPoint + 1));
 			const pid = Number(pidString);
+			const ipVersion = local[0] === "[" ? 6 : 4;
 
 			return idPort({
 				pid,
 				transportProtocol: "TCP",
 				ip: localIp,
-				destIp: getDestinationIp(localIp),
-				ipVersion: local[0] === "[" ? 6 : 4,
+				destIp: getDestinationIp(localIp, ipVersion),
+				ipVersion,
 				port: localPort,
 				state: state as PortState,
 				command: processes[pid] ?? null,
