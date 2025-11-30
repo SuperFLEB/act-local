@@ -1,12 +1,12 @@
 import Scanner from "@/server/lib/Scanner/Scanner";
-import type {Port} from "@t/Port";
+import type {Connection} from "@t/Connection.ts";
 import getProvider from "@/server/lib/provider/getProvider";
 import Provider from "@/server/lib/provider/Provider";
 import type {ScannerEvent} from "@/server/lib/Scanner/ScannerEvent.ts";
 
-function unchanged(a: Port, b: Port): boolean {
+function unchanged(a: Connection, b: Connection): boolean {
 	for (const key of ["state"]) {
-		if (a[key as keyof Port] !== b[key as keyof Port]) return false;
+		if (a[key as keyof Connection] !== b[key as keyof Connection]) return false;
 	}
 	return true;
 }
@@ -20,10 +20,10 @@ function setDifference<T>(a: Set<T>, b: Set<T>): Set<T> {
 	return diff;
 }
 
-function generateUpdates(oldPorts: Map<string, Port>, newPorts: Port[]) {
+function generateUpdates(oldPorts: Map<string, Connection>, newPorts: Connection[]) {
 	const oldIds = new Set(oldPorts.keys());
 	const newIds = new Set(newPorts.map(p => p.id));
-	const updates: ScannerEvent<Port>[] = [];
+	const updates: ScannerEvent<Connection>[] = [];
 
 	for (const id of setDifference(oldIds, newIds)) {
 		updates.push({ type: "DELETE", id, target: oldPorts.get(id)! });
@@ -37,13 +37,13 @@ function generateUpdates(oldPorts: Map<string, Port>, newPorts: Port[]) {
 	return updates;
 }
 
-export default class PortScanner extends Scanner<Port> {
+export default class ConnectionScanner extends Scanner<Connection> {
 	#provider: Provider;
-	#pollPromise: Promise<Port[]> | null = null;
-	#ports = new Map<string, Port>();
+	#pollPromise: Promise<Connection[]> | null = null;
+	#ports = new Map<string, Connection>();
 	#inReset: boolean = false;
 
-	static async create(pollInterval: number = 1000, provider?: Provider | null): Promise<PortScanner> {
+	static async create(pollInterval: number = 1000, provider?: Provider | null): Promise<ConnectionScanner> {
 		provider = provider ?? await getProvider();
 		if (provider === null) throw new Error("No port scanning providers are compatible with this system");
 		return new this(pollInterval, provider);

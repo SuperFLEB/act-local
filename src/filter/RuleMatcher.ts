@@ -1,4 +1,4 @@
-import type { Service } from "@/types/Service";
+import type {Service} from "@t/Connection.ts";
 
 export type MatchType = "EXACT" | "SEARCH" | "REGEX";
 

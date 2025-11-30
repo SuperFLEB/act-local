@@ -1,6 +1,7 @@
-import ProbingPortScanner from "@/server/lib/Scanner/ProbingPortScanner.ts";
+import ProbingConnectionScanner from "@/server/lib/Scanner/ProbingConnectionScanner.ts";
 import type {ScannerEvent} from "@/server/lib/Scanner/ScannerEvent.ts";
-import type {Service} from "@t/Service.ts";
+
+import type {Service} from "@t/Connection.ts";
 
 function logUpdate(u: ScannerEvent<Service>) {
 	const symbol = ({
@@ -11,7 +12,7 @@ function logUpdate(u: ScannerEvent<Service>) {
 	switch (u.type) {
 		case "ADD":
 		case "DELETE":
-			console.log(symbol, u.target.id, "| dest", u.target.destIp, '| port', u.target.port, '| pid', u.target.pid, '|', u.target.command, '|', u.target.title);
+			console.log(symbol, u.target.id, "| dest", u.target.destIp, "| port", u.target.port, "| pid", u.target.pid, "|", u.target.command, "|", u.target.title);
 			return;
 		case "RESET":
 		case "RESET_READY":
@@ -27,7 +28,7 @@ function logUpdate(u: ScannerEvent<Service>) {
 }
 
 (async () => {
-	ProbingPortScanner.create(1000).then((scanner) => {
+	ProbingConnectionScanner.create(1000).then((scanner) => {
 		console.log("Scanner initialized");
 		const listener = (event: ScannerEvent<Service>) => {
 			logUpdate(event);

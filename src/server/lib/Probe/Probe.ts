@@ -1,5 +1,4 @@
-import type {Port} from "@t/Port.ts";
-import type { Service } from "@/types/Service";
+import type {Connection, Service} from "@t/Connection.ts";
 
 export default abstract class Probe {
 	protected abortController: AbortController;
@@ -10,7 +9,7 @@ export default abstract class Probe {
 
 	abstract investigate(abortSignal?: AbortSignal): Promise<Service | null>;
 
-	constructor(port: Port) {
+	constructor(port: Connection) {
 		this.abortController = new AbortController();
 	}
 }

@@ -1,10 +1,9 @@
-import type {Port} from "@t/Port.ts";
-import type { Service } from "@/types/Service";
+import type {Connection, Service} from "@t/Connection.ts";
 import Probe from "@/server/lib/Probe/Probe.ts";
 import {parseHttpResponse} from "@/server/lib/Probe/util/http.ts";
 
 abstract class HttpHttpsProbe extends Probe {
-	#port: Port;
+	#connection: Connection;
 	protected abstract protocolString: "http" | "https";
 	protected abstract secure: boolean;
 	protected abstract name: string;
@@ -14,21 +13,22 @@ abstract class HttpHttpsProbe extends Probe {
 		if (signals.aborted) return null;
 
 		let connections: Service[] = [];
-		for (const host of [this.#port.destIp, "localhost"]) {
+		for (const host of [this.#connection.destIp, "localhost"]) {
 			if (signals.aborted) return null;
 			try {
-				const httpResponse = await fetch(this.protocolString + '://' + host + ':' + this.#port.port + '/', { signal: signals });
+				const httpResponse = await fetch(this.protocolString + '://' + host + ':' + this.#connection.port + '/', { signal: signals });
 				const parsed = await parseHttpResponse(httpResponse);
-				const probedPort: Service = {
+				const probedConnection: Service = {
 					probed: true,
+					success: httpResponse.ok,
 					...parsed,
-					...this.#port,
+					...this.#connection,
 					applicationProtocol: this.protocolString,
 					secure: this.secure,
 					httpStatus: httpResponse.status,
 				};
 
-				connections.push(probedPort);
+				connections.push(probedConnection);
 			} catch (error) {
 				continue;
 			}
@@ -36,9 +36,9 @@ abstract class HttpHttpsProbe extends Probe {
 		return connections.find(c => c.httpStatus === 200) ?? connections[0] ?? null;
 	}
 
-	constructor(port: Port) {
+	constructor(port: Connection) {
 		super(port);
-		this.#port = port;
+		this.#connection = port;
 	}
 }
 

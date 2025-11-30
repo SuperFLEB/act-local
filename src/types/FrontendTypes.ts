@@ -1,8 +1,8 @@
-import type { Service } from "./Service.ts";
+import type {UnifiedService} from "@t/Connection.ts";
 
 export type ServiceInfoPanelProps = {
-	type: "Service";
-	item: Service;
+	type: "UnifiedService";
+	item: UnifiedService;
 }
 
 export type NoneInfoPanelProps = {
