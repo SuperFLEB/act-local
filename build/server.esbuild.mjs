@@ -16,6 +16,9 @@ const defines = (definesObject) => Object.fromEntries(
 		.map(([env, defaultValue]) => [`process.env.DEFAULT_${env}`, process.env[env] ?? defaultValue])
 )
 
+const httpPort = process.env.ACT_LOCAL_HTTP_PORT ?? "8880";
+const wsPort = process.env.ACT_LOCAL_WS_PORT ?? (Number(httpPort) + 1).toString();
+
 const options = {
 	tsconfig: home("tsconfig.server.json"),
 	entryPoints,
@@ -27,8 +30,8 @@ const options = {
 	external: ["./node_modules/*"],
 	metafile: true,
 	define: defines({
-		"HTTP_PORT": "8880",
-		"WS_PORT": "8881",
+		"ACT_LOCAL_HTTP_PORT": httpPort,
+		"ACT_LOCAL_WS_PORT": wsPort,
 	}),
 	banner: {
 		js: "#!/usr/bin/env node"
