@@ -71,11 +71,6 @@ function defocusClick(event: MouseEvent) {
 	&.waiting > li {
 		opacity: 50%;
 	}
-
-	.service {
-		margin: 0;
-		padding: 0;
-	}
 }
 </style>
 

@@ -1,8 +1,7 @@
-import {type WebSocket, WebSocketServer} from "ws";
+import {WebSocketServer} from "ws";
 import type {ServerInfo} from "@t/ServerInfo";
 import ProbingConnectionScanner from "@/server/lib/Scanner/ProbingConnectionScanner.ts";
 import type {ScannerEvent} from "@/server/lib/Scanner/ScannerEvent";
-import type {IncomingMessage} from "node:http";
 import type {Service} from "@t/Connection.ts";
 
 export default function serveWs(port: number, _: ServerInfo) {
@@ -22,10 +21,9 @@ export default function serveWs(port: number, _: ServerInfo) {
 			const abortController = new AbortController();
 			const listener = (event: ScannerEvent<Service>) => {
 				const message = JSON.stringify(event);
-				if ("target" in event) console.log(connectionId, event.type, event.target.destIp, event.target.port, event.target.pid);
 				ws.send(message);
 			};
-			scanner.addListener(listener, { signal: abortController.signal });
+			scanner.addListener(listener, {signal: abortController.signal});
 			ws.on("error", err => console.error(err));
 			ws.on("close", () => {
 				abortController.abort();

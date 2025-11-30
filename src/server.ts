@@ -1,10 +1,13 @@
 import httpServer from "./server/http-server.ts";
 import wsServer from "./server/websocket-server.ts";
 
+const httpPort = Number(process.env.ACT_LOCAL_HTTP_PORT ?? 8880);
+const wsPort = Number(process.env.ACT_LOCAL_WS_PORT ?? httpPort + 1);
+
 const options = {
 	ports: {
-		http: Number(process.env.HTTP_PORT ?? process.env.DEFAULT_HTTP_PORT ?? 8880),
-		ws: Number(process.env.WS_PORT ?? process.env.DEFAULT_WS_PORT ?? 8881),
+		http: httpPort,
+		ws: wsPort,
 	}
 };
 

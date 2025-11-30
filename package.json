@@ -2,7 +2,7 @@
   "name": "locals",
   "packageManager": "yarn@4.9.2",
   "scripts": {
-    "dev": "concurrently -i --names Vue,API 'vite --force' 'tsx --tsconfig tsconfig.server.json --watch ./src/server.ts'",
+    "dev": "tsx build/dev.mts",
     "build-server": "node build/server.esbuild.mjs",
     "build": "vue-tsc -b && vite build && yarn build-server",
     "serve": "node dist/server.js",
@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "express": "^5.1.0",
-    "node-netstat": "^1.9.0",
     "vue": "^3.5.17",
     "ws": "^8.18.3"
   },
@@ -27,7 +26,6 @@
     "@types/express": "^5.0.5",
     "@types/jsdom": "^21.1.7",
     "@types/node": "^24.3.0",
-    "@types/node-netstat": "^1.8.4",
     "@types/ws": "^8.18.1",
     "@vercel/ncc": "^0.38.3",
     "@vitejs/plugin-vue": "^6.0.0",

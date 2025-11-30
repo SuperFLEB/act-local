@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ServiceIcon from "@/components/ServiceIcon.vue";
-import {computed, type CSSProperties, nextTick, ref, useTemplateRef, watch} from "vue";
+import {type CSSProperties, nextTick, ref, useTemplateRef, watch} from "vue";
 
 import type {UnifiedService} from "@t/Connection.ts";
 import useDefinitiveService from "@/providers/DefinitiveServiceProvider/useDefinitiveService.ts";

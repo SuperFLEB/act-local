@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import {ref, watch, watchEffect} from "vue";
+import {ref, watchEffect} from "vue";
 
 import type {Service} from "@t/Connection.ts";
 import useConfig from "@/providers/ConfigProvider/useConfig.ts";
 import {fallbackIcon, icon} from "@/util/service.ts";
+import type {Timeout} from "@t/Timeout.ts";
 
 const props = defineProps<{ service: Service, hostname: string }>();
 
 const configRef = useConfig();
 const src = ref<string>();
 
-let fallbackTimeout: ReturnType<typeof setTimeout>;
+let fallbackTimeout: Timeout;
 
 function switchImage(e: Event) {
 	clearTimeout(fallbackTimeout);

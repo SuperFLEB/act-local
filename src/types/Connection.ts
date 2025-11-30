@@ -1,5 +1,4 @@
 import type {ParsedResponse} from "@/server/lib/Probe/util/http.ts";
-import type {PortPreferences} from "@/config.ts";
 
 export type TransportProtocolName = "TCP" | "UDP";
 export type PortState = "LISTENING" | "ESTABLISHED";

@@ -11,7 +11,7 @@ export default function serveHttp(port: number, options: ServerInfo) {
 		res.setHeader("Access-Control-Allow-Origin", "*");
 		res.status(200).contentType("application/json").send(JSON.stringify(options));
 	});
-	app.get("/", (req, res) => {
+	app.get(/^\/(?:index\.html?)?$/, (req, res) => {
 		access(__dirname + "/index.html", fsConstants.R_OK, (err) => {
 			if (err) {
 				res.status(503).send(HOME);

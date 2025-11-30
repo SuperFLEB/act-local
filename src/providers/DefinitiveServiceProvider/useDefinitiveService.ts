@@ -1,5 +1,5 @@
 import k from "./keys.ts";
-import type {Definitive, Service, UnifiedService} from "@t/Connection.ts";
+import type {Service, UnifiedService} from "@t/Connection.ts";
 import {inject, type Ref} from "vue";
 import {ComposableOutOfContextError} from "@/errors.ts";
 
