@@ -16,7 +16,6 @@ export default class ProbingConnectionScanner extends Scanner<Service> {
 	}
 
 	protected get syntheticEvents() {
-		if (this.#connections.size === 0) return [];
 		return [
 			{type: "RESET" as const},
 			...this.#connections.values().map(p => ({type: "ADD" as const, id: p.id, target: p})),

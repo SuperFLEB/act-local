@@ -6,8 +6,7 @@ import k from "./keys.ts";
 const serverInfo = ref<ServerInfo | undefined>();
 
 if (!serverInfo.value) {
-	const url = process.env.NODE_ENV === "development" ? "http://localhost:8880" : window.location.origin;
-
+	const url = import.meta.env.DEV ? "http://localhost:" + (import.meta.env.VITE_API_SERVER_PORT ?? 8881) : window.location.origin;
 	fetch(url + "/serverinfo.json")
 		.then(r => r.json())
 		.then(info => {

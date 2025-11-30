@@ -1,5 +1,5 @@
 import type {Service, UnifiedService} from "@t/Connection.ts";
-import type {Config, PortPreferences} from "@/config.ts";
+import type {PortPreferences} from "@/config.ts";
 
 
 function getBest(uni: UnifiedService): Service | null {

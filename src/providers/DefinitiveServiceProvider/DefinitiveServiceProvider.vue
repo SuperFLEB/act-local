@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import k from "./keys.ts";
-import type {Definitive, Service, UnifiedService} from "@t/Connection.ts";
+import type {Service, UnifiedService} from "@t/Connection.ts";
 import useConfig from "@/providers/ConfigProvider/useConfig.ts";
 import type {PortPreferences} from "@/config.ts";
 import {computed, provide, type Ref} from "vue";
