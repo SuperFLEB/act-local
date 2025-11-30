@@ -1,4 +1,4 @@
-import type {Port} from "@t/Port.ts";
+import type {Connection} from "@t/Connection.ts";
 
 type PortScanAbstract<T extends Provider> = {
 	new(): T,
@@ -10,5 +10,5 @@ export default abstract class Provider {
 		return await this.capable() ? new this() : null;
 	}
 	static capable(): Promise<boolean> { return Promise.resolve(false); }
-	abstract scan(): Promise<Port[]>;
+	abstract scan(): Promise<Connection[]>;
 }

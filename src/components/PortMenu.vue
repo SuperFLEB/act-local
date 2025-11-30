@@ -1,27 +1,27 @@
 <script setup lang="ts">
 import usePortServices from "@/providers/PortServicesProvider/usePortServices.ts";
 import InfoPane from "@/components/InfoPane/index.vue";
-import ServiceDesktopItem from "@/components/ServiceDesktopItem.vue";
+import PortDesktopItem from "@/components/PortDesktopItem.vue";
 import {ref} from "vue";
 import type {InfoPanelProps} from "@t/FrontendTypes.ts";
-import type { Service } from "@/types/Service";
-import {serviceUrl} from "@/util/service.ts";
+import type {UnifiedService} from "@t/Connection.ts";
+import DefinitiveServiceProvider from "@/providers/DefinitiveServiceProvider/DefinitiveServiceProvider.vue";
 
-const {services: liveServices} = usePortServices();
+const {unifiedServices} = usePortServices();
 
-const selected = ref<Service | undefined>();
+const selected = ref<string | undefined>();
 const infoPanel = ref<InfoPanelProps>({type: "None"});
 
-function go(_: Event, service: Service) {
-	window.open(serviceUrl(service), "_blank");
+function go(_: Event, serviceUrl: string) {
+	window.open(serviceUrl, "_blank");
 }
 
-function focusEvent(event: FocusEvent, service: Service) {
+function focusEvent(event: FocusEvent, uni: UnifiedService) {
 	infoPanel.value = {
-		type: "Service",
-		item: service
+		type: "UnifiedService",
+		item: uni
 	};
-	selected.value = service;
+	selected.value = uni.id;
 }
 
 function defocusClick(event: MouseEvent) {
@@ -33,15 +33,16 @@ function defocusClick(event: MouseEvent) {
 
 <template>
 	<div class="portMenu" ref="portMenu">
-		<InfoPane :="infoPanel" class="infoPanel" />
+		<InfoPane :="infoPanel" class="infoPanel"/>
 		<ul :class="['services']">
-			<li v-for="service in liveServices" :key="service.id">
-				<ServiceDesktopItem
-					:service
-					:focus="selected === service"
-					@focus="focusEvent"
-					@activate="go"
-				/>
+			<li v-for="uni in unifiedServices" :key="uni.id">
+				<DefinitiveServiceProvider :unified="uni">
+					<PortDesktopItem
+						:focus="selected === uni.id"
+						@focus="focusEvent"
+						@activate="go"
+					/>
+				</DefinitiveServiceProvider>
 			</li>
 		</ul>
 	</div>

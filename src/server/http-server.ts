@@ -14,7 +14,7 @@ export default function serveHttp(port: number, options: ServerInfo) {
 	app.get("/", (req, res) => {
 		access(__dirname + "/index.html", fsConstants.R_OK, (err) => {
 			if (err) {
-				res.send(HOME);
+				res.status(503).send(HOME);
 				return;
 			}
 			res.sendFile(__dirname + "/index.html");
@@ -41,7 +41,9 @@ const HOME = `
   <title>${APP_NAME} (API Server)</title>
 </head>
 <body>
+	<h1>Development Mode</h1>
     This is the ${APP_NAME} API server fallback page. You should only see this when the server is in development mode.
+    Use the Vite application server address (usually <a href="http://localhost:5173/">http://localhost:5173/</a> to access the application.
 </body>
 </html>
 `;

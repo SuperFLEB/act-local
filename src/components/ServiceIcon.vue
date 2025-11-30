@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import {ref, watch} from "vue";
-import {fallbackIcon, icon} from "@/util/service.ts";
-import type { Service } from "@/types/Service";
+import {ref, watch, watchEffect} from "vue";
 
-const props = defineProps<{ service: Service }>();
+import type {Service} from "@t/Connection.ts";
+import useConfig from "@/providers/ConfigProvider/useConfig.ts";
+import {fallbackIcon, icon} from "@/util/service.ts";
+
+const props = defineProps<{ service: Service, hostname: string }>();
+
+const configRef = useConfig();
 const src = ref<string>();
 
 let fallbackTimeout: ReturnType<typeof setTimeout>;
@@ -18,16 +22,18 @@ function fallbackImage() {
 	src.value = fallbackIcon(props.service);
 }
 
-watch(() => props.service, () => {
+watchEffect(() => {
+	src.value = fallbackIcon(props.service);
+
 	const image = new Image();
-	image.src = icon(props.service);
+	image.src = icon(props.service, props.hostname);
 
 	image.onload = switchImage;
 	image.onerror = fallbackImage;
 	fallbackTimeout = setTimeout(fallbackImage, 2000);
-}, {immediate: true});
 
+})
 </script>
 <template>
-	<img :alt="props.service.title ?? 'icon'" :="$attrs" :src="src" />
+	<img :alt="service.title ?? 'icon'" :="$attrs" :src="src" />
 </template>

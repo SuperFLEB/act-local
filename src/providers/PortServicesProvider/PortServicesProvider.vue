@@ -2,8 +2,11 @@
 import k from "./keys.ts";
 import {computed, onMounted, onUnmounted, provide, ref} from "vue";
 // import useServerInfo from "@/providers/ServerInfoProvider/useServerInfo.ts";
-import PortsWebSocketClient from "@/websocket/PortsWebSocketClient.ts";
-import type { Service } from "@/types/Service.ts";
+import ServicesWebSocketClient from "@/websocket/ServicesWebSocketClient.ts";
+
+import type {Service} from "@t/Connection.ts";
+import unifyServices from "@/providers/PortServicesProvider/unifyServices.ts";
+import useConfig from "@/providers/ConfigProvider/useConfig.ts";
 
 type Props = { autoConnect?: boolean, wsHost?: string, wsPort?: number, wsProtocol?: "ws" | "wss" };
 const props = withDefaults(defineProps<Props>(), {
@@ -16,8 +19,9 @@ const props = withDefaults(defineProps<Props>(), {
 // const {serverInfo} = useServerInfo();
 
 const servicesRef = ref(new Map<string, Service>());
+const configRef = useConfig();
 
-const client = new PortsWebSocketClient(
+const client = new ServicesWebSocketClient(
 	"localhost",
 	8881,
 	false,
@@ -44,8 +48,11 @@ const intf = {
 };
 export type PortInfoProviderInterface = typeof intf;
 
+const unifiedServicesRef = computed(() => unifyServices([...servicesRef.value.values()], configRef.value));
+
 provide(k.INTERFACE, intf);
 provide(k.SERVICES_REF, computed(() => [...servicesRef.value.values()]));
+provide(k.UNIFIED_SERVICES_REF, computed(() => [...unifiedServicesRef.value.values()]));
 </script>
 
 <template>

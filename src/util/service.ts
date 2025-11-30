@@ -1,5 +1,5 @@
+import type {Service} from "@t/Connection.ts";
 import unknownSvg from "@/assets/icons/unknown.svg";
-import type { Service } from "@/types/Service";
 
 const iconMap: Record<string, string> = {
 	http: "http",
@@ -10,12 +10,7 @@ const iconMap: Record<string, string> = {
 	"text/plain": "text",
 };
 
-export function serviceUrl(service: Service, path: string = "/") {
-	if (path[0] !== "/") path = "/" + path;
-	return `${service.applicationProtocol}://${service.destIp}:${service.port}${path}`;
-}
-
-export function fallbackIcon(service: Service) {
+export function fallbackIcon(service: Service): string {
 	const icon = (() => {
 		const contentType = service.contentType?.split(";")[0] ?? "";
 		if (contentType in iconMap) return iconMap[contentType as string];
@@ -25,9 +20,14 @@ export function fallbackIcon(service: Service) {
 	return unknownSvg + "#" + icon;
 }
 
-export function icon(service: Service) {
-	const baseUrl = `${service.applicationProtocol}://${service.destIp}:${service.port}/`;
-	if (service.icon && service.icon) {
+export function getUrl(service: Service, hostName: string, path: string): string {
+	if (path[0] !== "/") path = "/" + path;
+	return `${service.applicationProtocol}://${hostName}:${service.port}${path}`;
+}
+
+export function icon(service: Service, hostName: string): string {
+	const baseUrl = getUrl(service, hostName, "/");
+	if (service.icon) {
 		if (/^[-a-zA-Z]+:/.test(service.icon)) {
 			return service.icon;
 		}

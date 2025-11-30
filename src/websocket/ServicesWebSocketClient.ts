@@ -1,7 +1,8 @@
 import type {Ref} from "vue";
-import type { Service } from "@/types/Service";
 
-export default class PortsWebSocketClient {
+import type {Service} from "@t/Connection.ts";
+
+export default class ServicesWebSocketClient {
 	#host: string;
 	#port: number;
 	#secure: boolean;
@@ -13,18 +14,18 @@ export default class PortsWebSocketClient {
 
 	#message(message: string) {
 		const { type, id, target } = JSON.parse(message) as { id: string, type: string, target?: Service };
-		const ports = this.ref.value;
+		const services = this.ref.value;
 
 		switch (type) {
 			case "ADD":
 			case "UPDATE":
-				ports.set(id, target!);
+				services.set(id, target!);
 				return;
 			case "DELETE":
-				ports.delete(id);
+				services.delete(id);
 				return;
 			case "RESET":
-				ports.clear();
+				services.clear();
 				return;
 			default:
 				console.log("Unhandled message: ", message);

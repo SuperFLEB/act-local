@@ -1,10 +1,12 @@
 import Provider from "@/server/lib/provider/Provider.ts";
-import type {Port, PortState} from "@t/Port.ts";
+import type {Connection, PortState} from "@t/Connection.ts";
 import {execFile} from "node:child_process";
 import {promisify} from "node:util";
 import {platform} from "node:os";
 import getDestinationIp from "@/server/lib/provider/util/getDestinationIp.ts";
 import idPort from "@/server/lib/provider/util/idPort.ts";
+
+type Processes = Record<number, string>;
 
 const pExecFile = promisify(execFile);
 
@@ -34,6 +36,31 @@ function csvToPidProc(line: string): [number, string] {
 	return [Number(fields[1]), fields[0]];
 }
 
+function getConnections(processes: Processes, nsResult: string, ipVersion: 4 | 6): Connection[] {
+	const lines = nsResult.split("\n").filter(line => line.includes("LISTENING"));
+	return lines.map(line => {
+		const [_proto, local, _remote, state, pidString] = line.trim().split(/\s+/);
+
+		const splitPoint = local.lastIndexOf(":");
+		if (splitPoint === -1) return null;
+
+		const localIp = local.slice(0, splitPoint);
+		const localPort = Number(local.slice(splitPoint + 1));
+		const pid = Number(pidString);
+
+		return idPort({
+			pid,
+			transportProtocol: "TCP",
+			ip: localIp,
+			ipVersion,
+			destIp: getDestinationIp(localIp, ipVersion),
+			port: localPort,
+			state: state as PortState,
+			command: processes[pid] ?? null,
+		}) as Connection;
+	}).filter(port => port !== null);
+}
+
 export default class WindowsNetstatProvider extends Provider {
 	static capable(): Promise<boolean> {
 		if (platform() !== "win32") return Promise.resolve(false);
@@ -46,36 +73,18 @@ export default class WindowsNetstatProvider extends Provider {
 			});
 	}
 
-	async scan(): Promise<Port[]> {
+	async scan(): Promise<Connection[]> {
 		const {stdout: psResult} = await pExecFile("tasklist", ["/fo", "csv"]);
 		const {stdout: nsResultV4} = await pExecFile("netstat", ["-ano", "-p", "tcp"]);
 		const {stdout: nsResultV6} = await pExecFile("netstat", ["-ano", "-p", "tcpv6"]);
 
-		const processes: Record<number, string> = Object.fromEntries(
+		const processes: Processes = Object.fromEntries(
 			psResult.split("\n").slice(1).map(csvToPidProc)
 		);
 
-		const lines = (nsResultV4 + "\n" + nsResultV6).split("\n").filter(line => line.includes("LISTENING"));
-
-		return lines.map(line => {
-			const [_proto, local, _remote, state, pidString] = line.trim().split(/\s+/);
-			const splitPoint = local.lastIndexOf(":");
-			if (splitPoint === -1) return null;
-			const localIp = local.slice(0, splitPoint);
-			const localPort = Number(local.slice(splitPoint + 1));
-			const pid = Number(pidString);
-			const ipVersion = local[0] === "[" ? 6 : 4;
-
-			return idPort({
-				pid,
-				transportProtocol: "TCP",
-				ip: localIp,
-				destIp: getDestinationIp(localIp, ipVersion),
-				ipVersion,
-				port: localPort,
-				state: state as PortState,
-				command: processes[pid] ?? null,
-			}) as Port;
-		}).filter(port => port !== null);
+		return [
+			...getConnections(processes, nsResultV4, 4),
+			...getConnections(processes, nsResultV6, 6),
+		];
 	}
 }

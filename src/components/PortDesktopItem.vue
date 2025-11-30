@@ -1,17 +1,22 @@
 <script setup lang="ts">
 import ServiceIcon from "@/components/ServiceIcon.vue";
-import {type CSSProperties, nextTick, ref, useTemplateRef, watch} from "vue";
-import type {Service} from "@/types/Service";
+import {computed, type CSSProperties, nextTick, ref, useTemplateRef, watch} from "vue";
 
-const props = defineProps<{ service: Service, focus: boolean }>();
+import type {UnifiedService} from "@t/Connection.ts";
+import useDefinitiveService from "@/providers/DefinitiveServiceProvider/useDefinitiveService.ts";
+import {getUrl} from "@/util/service.ts";
+
+const props = defineProps<{ focus: boolean }>();
 const emit = defineEmits<{
-	focus: [FocusEvent, Service],
-	activate: [KeyboardEvent | MouseEvent, Service],
-	keypress: [KeyboardEvent, Service],
+	focus: [FocusEvent, UnifiedService],
+	activate: [KeyboardEvent | MouseEvent, string],
+	keypress: [KeyboardEvent, UnifiedService],
 }>();
 
+const { service, unifiedService, hostname } = useDefinitiveService();
+
 function activate(e: MouseEvent | KeyboardEvent) {
-	emit("activate", e, props.service);
+	emit("activate", e, getUrl(service.value, hostname.value, "/"));
 }
 
 const titleStyle = ref<CSSProperties>({});
@@ -23,17 +28,17 @@ function shrinkwrap() {
 		titleStyle.value.maxWidth = Math.max(0, ...Array.from(range.getClientRects()).map(r => r.width)) + "px";
 	});
 }
-watch(() => props.service.title, shrinkwrap, {immediate: true});
+watch(() => service.value.title, shrinkwrap, {immediate: true});
 </script>
 <template>
 	<div
 		:class="['item', {focus: props.focus}]"
 		tabindex="0"
-		@focusin="emit('focus', $event, props.service)"
+		@focusin="emit('focus', $event, unifiedService)"
 		@dblclick="activate"
 	>
-		<ServiceIcon class="icon" :service="props.service"/>
-		<div ref="title" class="title" :style="titleStyle">{{ props.service.title }}</div>
+		<ServiceIcon class="icon" :service :hostname />
+		<div ref="title" class="title" :style="titleStyle">{{ service.title }}</div>
 	</div>
 </template>
 

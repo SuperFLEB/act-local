@@ -1,5 +1,5 @@
 import Provider from "@/server/lib/provider/Provider.ts";
-import {type Port} from "@t/Port.ts";
+import {type Connection} from "@t/Connection.ts";
 import {execFile} from "node:child_process";
 import {promisify} from "node:util";
 import {platform} from "node:os";
@@ -7,7 +7,7 @@ import getDestinationIp from "@/server/lib/provider/util/getDestinationIp.ts";
 
 const pExecFile = promisify(execFile);
 
-function parseLsof(lsofOutput: string, assumeProtocol: 'TCP' | 'UDP' = 'TCP'): Port[] {
+function parseLsof(lsofOutput: string, assumeProtocol: "TCP" | "UDP" = "TCP"): Connection[] {
 	const lines = lsofOutput.split("\n").filter(line => line.trim().length > 0);
 	type Fd = {
 		id: string;
@@ -17,13 +17,13 @@ function parseLsof(lsofOutput: string, assumeProtocol: 'TCP' | 'UDP' = 'TCP'): P
 		ip?: string;
 		port?: number;
 		destIp?: string;
-	}
+	};
 
 	type Process = {
 		pid: number;
 		command?: string;
 		fd: Fd[];
-	}
+	};
 
 	const processes: Process[] = [];
 	let process: Process | null = null;
@@ -79,13 +79,13 @@ function parseLsof(lsofOutput: string, assumeProtocol: 'TCP' | 'UDP' = 'TCP'): P
 
 	// Flatten process list to a list of FDs/ports
 	return processes.flatMap(process => {
-		const {fd: fds, ...partialPort} = process;
+		const {fd: fds, ...partialConnection} = process;
 		return fds.map((fd) => ({
-			...partialPort as Port,
+			...partialConnection as Connection,
 			...fd,
 			destIp: getDestinationIp(fd.ip!, fd.ipVersion!),
 		}));
-	}) as Port[];
+	}) as Connection[];
 }
 
 export default class LsofProvider extends Provider {
@@ -96,10 +96,9 @@ export default class LsofProvider extends Provider {
 		}));
 	}
 
-	async scan(): Promise<Port[]> {
+	async scan(): Promise<Connection[]> {
 		// lsof -Pn -i tcp -a -i6 -i4 -sTCP:LISTEN -F cntT
 		const lsof = await pExecFile("lsof", ["-Pn", "-i", "tcp", "-a", "-i6", "-i4", "-sTCP:LISTEN", "-F", "cntT"]);
-		const parsed = parseLsof(lsof.stdout);
-		return parsed;
+		return parseLsof(lsof.stdout);
 	}
 }

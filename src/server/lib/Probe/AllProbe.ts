@@ -1,9 +1,9 @@
 import Probe from "@/server/lib/Probe/Probe.ts";
 import {HttpProbe, HttpsProbe} from "@/server/lib/Probe/HttpHttpsProbe.ts";
-import type {Port} from "@t/Port.ts";
+import type {Connection} from "@t/Connection.ts";
 
 export default class AllProbe extends Probe {
-	#port: Port;
+	#port: Connection;
 	name = "sequence";
 	secure = false;
 
@@ -15,7 +15,7 @@ export default class AllProbe extends Probe {
 		);
 	}
 
-	constructor(port: Port) {
+	constructor(port: Connection) {
 		super(port);
 		this.#port = port;
 	}
